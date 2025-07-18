@@ -1,0 +1,32 @@
+# Compiled Object files
+*.o
+*.obj
+*.slo
+*.lo
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Build directories
+build/
+images/
+
+# IDE-specific files
+.vscode/
+.vs/
+*.suo
+*.user
+
+# Log files
+*.log
