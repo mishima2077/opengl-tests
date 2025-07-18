@@ -61,8 +61,8 @@ void init();
 void draw();
 void cleanup();
 
-// Helper functions
 GLuint create_texture(GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter);
+void run_texture_tests(GLuint tex_id, GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter);
 void check_param_i(GLenum target, const char* name, GLenum pname, GLint expected);
 void check_param_f(GLenum target, const char* name, GLenum pname, GLfloat expected);
 
@@ -104,7 +104,7 @@ int main(){
     cleanup();
 
     glfwTerminate();
-    return 0;
+    return g_tests_failed ? -1 : 0;
 }
 
 void init()
@@ -160,22 +160,29 @@ void init()
     glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
 
-    // --- Create Textures and Run Tests ---
-    printf("--- Running Tests for GL_TEXTURE_2D ---\n");
+    // Creating Textures
     tex2D[0] = create_texture(GL_TEXTURE_2D, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
     tex2D[1] = create_texture(GL_TEXTURE_2D, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT, GL_LINEAR, GL_LINEAR);
     tex2D[2] = create_texture(GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
 
-    printf("\n--- Running Tests for GL_TEXTURE_CUBE_MAP ---\n");
     texCubeMap[0] = create_texture(GL_TEXTURE_CUBE_MAP, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
     texCubeMap[1] = create_texture(GL_TEXTURE_CUBE_MAP, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT, GL_LINEAR, GL_LINEAR);
     texCubeMap[2] = create_texture(GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+
+    // Testing Textures
+    printf("\n--- Testing Textures ---\n");    
+    run_texture_tests(tex2D[0], GL_TEXTURE_2D, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+    run_texture_tests(tex2D[1], GL_TEXTURE_2D, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT, GL_LINEAR, GL_LINEAR);
+    run_texture_tests(tex2D[2], GL_TEXTURE_2D, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
+    run_texture_tests(texCubeMap[0], GL_TEXTURE_CUBE_MAP, GL_REPEAT, GL_REPEAT, GL_NEAREST, GL_NEAREST);
+    run_texture_tests(texCubeMap[1], GL_TEXTURE_CUBE_MAP, GL_MIRRORED_REPEAT, GL_MIRRORED_REPEAT, GL_LINEAR, GL_LINEAR);
+    run_texture_tests(texCubeMap[2], GL_TEXTURE_CUBE_MAP, GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR);
     
     printf("\n--- Test Run Complete ---\n");
-    if (g_tests_failed == 1) {
-        printf("\n!!! ONE OR MORE TESTS FAILED. DISPLAYING BLACK SCREEN. !!!\n");
+    if (g_tests_failed) {
+        printf("!!! ONE OR MORE TESTS FAILED. DISPLAYING BLACK SCREEN. !!!\n");
     } else {
-        printf("\nAll tests passed.\n");
+        printf("All tests passed.\n");
     }
 
     glUseProgram(shaderProgram);
@@ -186,7 +193,7 @@ void init()
 
 void draw()
 {
-    if (g_tests_failed == 1) {
+    if (g_tests_failed) {
         // Full Black screen if any of the tests have failed
         glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
@@ -240,7 +247,7 @@ void cleanup()
     glDeleteTextures(4, texCubeMap);
 }
 
-// Texture Creation and Testing Helper
+// This function creates and configures the texture.
 GLuint create_texture(GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter) {
     GLuint tex_id;
     glGenTextures(1, &tex_id);
@@ -264,24 +271,32 @@ GLuint create_texture(GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filte
         glGenerateMipmap(target);
     }
 
-    printf("Testing Texture ID %d...\n", tex_id);
+    // Setting up texture parameters
     glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap_s);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap_t);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, min_filter);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, mag_filter);
+    
+    return tex_id;
+}
+
+// Function dedicated to running the parameter checks.
+void run_texture_tests(GLuint tex_id, GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter) {
+    printf("--- Running checks for Texture ID %d ---\n", tex_id);
+
+    glBindTexture(target, tex_id); 
+
     check_param_i(target, "WRAP_S", GL_TEXTURE_WRAP_S, wrap_s);
     check_param_f(target, "WRAP_S (as float)", GL_TEXTURE_WRAP_S, (GLfloat)wrap_s);
 
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap_t);
     check_param_i(target, "WRAP_T", GL_TEXTURE_WRAP_T, wrap_t);
     check_param_f(target, "WRAP_T (as float)", GL_TEXTURE_WRAP_T, (GLfloat)wrap_t);
 
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, min_filter);
     check_param_i(target, "MIN_FILTER", GL_TEXTURE_MIN_FILTER, min_filter);
     check_param_f(target, "MIN_FILTER (as float)", GL_TEXTURE_MIN_FILTER, (GLfloat)min_filter);
 
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, mag_filter);
     check_param_i(target, "MAG_FILTER", GL_TEXTURE_MAG_FILTER, mag_filter);
     check_param_f(target, "MAG_FILTER (as float)", GL_TEXTURE_MAG_FILTER, (GLfloat)mag_filter);
-    
-    return tex_id;
 }
 
 // Assertion Helper Functions
