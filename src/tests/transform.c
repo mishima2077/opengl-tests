@@ -284,3 +284,5 @@ void cleanup()
     glDeleteProgram(program3);
     glDeleteProgram(program4);
 }
+
+// Written by Adil Mert Ergörün, https://github.com/mishima2077/opengl-tests

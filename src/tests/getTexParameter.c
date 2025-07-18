@@ -306,3 +306,5 @@ void check_param_f(GLenum target, const char* name, GLenum pname, GLfloat expect
         g_tests_failed = 1;
     }
 }
+
+// Written by Adil Mert Ergörün, https://github.com/mishima2077/opengl-tests

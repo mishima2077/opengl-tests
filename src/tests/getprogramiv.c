@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-// MODIFIED: Removed <stdbool.h>
 
 #include "glad.h"
 #include <GLFW/glfw3.h>
@@ -223,3 +222,5 @@ void check(int actual, int expected, const char* message) {
         printf("OK: %s (Value: %d)\n", message, actual);
     }
 }
+
+// Written by Adil Mert Ergörün, https://github.com/mishima2077/opengl-tests

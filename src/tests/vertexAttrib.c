@@ -248,3 +248,5 @@ void cleanup()
     glDeleteBuffers(1, &us_vbo);
     glDeleteBuffers(1, &s_vbo);
 }
+
+// Written by Adil Mert Ergörün, https://github.com/mishima2077/opengl-tests

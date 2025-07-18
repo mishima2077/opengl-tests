@@ -154,3 +154,5 @@ void cleanup()
     glDeleteBuffers(1, &VBO);
     glDeleteProgram(shaderProgram);
 }
+
+// Written by Adil Mert Ergörün, https://github.com/mishima2077/opengl-tests
